@@ -52,8 +52,8 @@ This project creates a robust Data Platform for a Travel Agency to process and a
 ### Steps
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-repo/data-platform.git
-   cd data-platform
+   git clone https://github.com/your-repo/core_data_engineering_project
+   cd core_data_engineering_project
    ```
 
 2. Install Python dependencies:
