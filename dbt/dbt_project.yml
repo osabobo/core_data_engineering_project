@@ -1,0 +1,20 @@
+name: "travel_agency_dbt"
+version: "1.0.0"
+config-version: 2
+
+profile: "default"
+
+vars:
+  environment: "dev"
+
+models:
+  travel_agency_dbt:
+    fact_tables:
+      materialized: table
+    dimension_tables:
+      materialized: table
+
+target-path: "target/"
+clean-targets:
+  - "target/"
+  - "dbt_modules/"
