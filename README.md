@@ -1,118 +1,120 @@
 
-# Data Platform for Travel Agency: Leveraging API Data for Predictive Analytics
+# Travel Agency Data Platform Project
 
-## Project Overview
-This project creates a robust Data Platform for a Travel Agency to process and analyze data from the Country REST API ([https://restcountries.com/v3.1/all](https://restcountries.com/v3.1/all)). The platform leverages scalable cloud infrastructure, Apache Airflow for orchestration, and DBT for data modeling to enable predictive analytics.
+This project involves building a data platform for a travel agency to process data from the [REST Countries API](https://restcountries.com/v3.1/all) into a cloud-based data warehouse for predictive analytics. The platform extracts raw data, processes specific attributes, and organizes the data into Fact and Dimension tables using DBT.
 
----
+## Project Components
 
-## Architecture
-### Workflow:
-1. **API Data Source** → Extract raw data.
-2. **Data Lake (Cloud Object Storage in Parquet format)** → Store raw data.
-3. **Processed Layer (Cloud Database/Data Warehouse)** → Store transformed data.
-4. **Modeled Layer (DBT Fact and Dimension Tables)** → Optimized for analytics.
+### 1. Data Flow Architecture
+- **API Data Source → Data Lake (Object Storage in Parquet format) → Processed Data Warehouse → Fact and Dimension Tables for Analytics**
 
-### Tools:
-- **Apache Airflow**: Workflow orchestration.
-- **DBT**: Data modeling and analytics.
-- **Terraform**: Infrastructure as code.
-- **CI/CD (GitHub Actions)**: Automate testing, builds, and deployments.
-- **Docker**: Containerization for reproducibility.
+### 2. Tools and Technologies
+- **Programming Languages**: Python, SQL
+- **Orchestration**: Apache Airflow
+- **Data Modeling**: DBT (Data Build Tool)
+- **Cloud Storage**: Object Storage (e.g., AWS S3, Azure Blob)
+- **Database**: Cloud-based Data Warehouse (e.g., AWS Redshift, Snowflake)
+- **Infrastructure**: Terraform
+- **Containerization**: Docker
+- **CI/CD**: GitHub Actions
 
----
+### 3. Project Structure
+```
+.
+├── dags/
+│   ├── extract_data.py          # DAG for extracting raw data
+│   ├── process_data.py          # DAG for processing specific fields
+│   ├── load_to_dwh.py           # DAG for loading data to the warehouse
+├── dbt/
+│   ├── models/
+│   │   ├── fact_tables.sql      # Fact table definitions
+│   │   ├── dimension_tables.sql # Dimension table definitions
+│   ├── dbt_project.yml          # DBT project configuration
+├── terraform/
+│   ├── main.tf                  # Infrastructure provisioning
+│   ├── variables.tf             # Configurable variables
+│   ├── outputs.tf               # Outputs for provisioning
+│   ├── backend.tf               # Cloud Object Storage backend
+├── Dockerfile                   # Docker image configuration
+├── requirements.txt             # Python dependencies
+└── .github/
+    └── workflows/
+        └── github_actions.yml   # CI/CD configuration
+```
 
-## Key Features
-1. **Raw Data Storage**: Full API data stored in Parquet format.
-2. **Processed Data**: Extracts key fields for analytics:
-   - Country Name
-   - Independence
-   - United Nations Membership
-   - Start of Week
-   - Capital, Region, Subregion
-   - Languages, Area, Population, Continents
-   - Currency Details (Code, Name, Symbol)
-   - Concatenated Country Code (`idd.root` + `idd.suffix`)
-3. **Orchestration**: Apache Airflow DAGs automate extraction, transformation, and loading.
-4. **CI/CD Pipeline**:
-   - Linting with Flake8.
-   - Docker image build and push.
-5. **Infrastructure Provisioning**: Terraform scripts manage all cloud resources.
+### 4. Workflow
+1. **Extract Data**: 
+   - Use Apache Airflow to extract raw data from the REST Countries API.
+   - Store raw data in Cloud Object Storage as Parquet files.
 
----
+2. **Process Data**: 
+   - Transform data in the Data Lake to include only required attributes:
+     - Country name, independence, UN membership, start of week, official name, etc.
+
+3. **Load to Data Warehouse**: 
+   - Write processed data into a Cloud Data Warehouse for analytics.
+
+4. **Data Modeling**: 
+   - Use DBT to organize data into Fact and Dimension tables.
+
+5. **CI/CD**: 
+   - GitHub Actions pipeline for linting, building Docker images, and pushing to a container registry.
+
+6. **Infrastructure as Code (IaC)**: 
+   - Use Terraform to provision cloud infrastructure, including Object Storage, IAM roles, and databases.
 
 ## Setup Instructions
 
 ### Prerequisites
-- Python 3.9+
 - Docker
-- Terraform
-- Cloud provider account (AWS, Azure, or GCP)
+- Terraform CLI
+- Apache Airflow
+- DBT
+- Python 3.9+
+- GitHub repository with CI/CD secrets configured
 
 ### Steps
-1. Clone this repository:
+1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-repo/core_data_engineering_project
-   cd core_data_engineering_project
+   git clone <repository-url>
+   cd <repository-name>
    ```
 
-2. Install Python dependencies:
+2. **Build Docker Image**:
    ```bash
-   pip install -r requirements.txt
+   docker build -t travel_agency_etl:latest .
    ```
 
-3. Set up environment variables:
-   - API Key (if required).
-   - Cloud credentials.
+3. **Run Airflow DAGs**:
+   - Start Apache Airflow and trigger DAGs in the following order:
+     1. `extract_data.py`
+     2. `process_data.py`
+     3. `load_to_dwh.py`
 
-4. Deploy infrastructure using Terraform:
+4. **Deploy Infrastructure with Terraform**:
    ```bash
    cd terraform
    terraform init
    terraform apply
    ```
 
-5. Start Apache Airflow:
+5. **Run DBT Models**:
    ```bash
-   airflow db init
-   airflow webserver -p 8080
-   airflow scheduler
-   ```
-
-6. Run DBT to model the data:
-   ```bash
+   cd dbt
    dbt run
    ```
 
----
+6. **CI/CD Pipeline**:
+   - Push changes to the `main` branch to trigger GitHub Actions.
 
-## Repository Structure
-```
-📦project-repo
- ┣ 📂airflow_dags
- ┃ ┣ 📜extract_data.py
- ┃ ┣ 📜process_data.py
- ┃ ┗ 📜load_to_dwh.py
- ┣ 📂terraform
- ┃ ┣ 📜main.tf
- ┃ ┣ 📜variables.tf
- ┃ ┣ 📜outputs.tf
- ┃ ┗ 📜backend.tf
- ┣ 📂dbt
- ┃ ┣ 📂models
- ┃ ┃ ┣ 📜fact_tables.sql
- ┃ ┃ ┗ 📜dimension_tables.sql
- ┃ ┗ 📜dbt_project.yml
- ┣ 📂docker
- ┃ ┣ 📜Dockerfile
- ┃ ┗ 📜requirements.txt
- ┣ 📜README.md
- ┗ 📜requirements.txt
-```
+## Outputs
+- **Data Lake**: Parquet files in Cloud Object Storage
+- **Data Warehouse**: Processed tables for analytics
+- **Fact Tables**: Metrics for analysis (e.g., population density, years independent)
+- **Dimension Tables**: Categorical data (e.g., currencies, languages)
 
----
+## License
+This project is licensed under the MIT License.
 
-## Contact Information
-- **Name**: Osagie Eboigbe
-- **Email**: johanneseboigbe55@yahoo.com
-- **LinkedIn**: [https://www.linkedin.com/in/osagie-eboigbe-52b84794/](#)
+## Contact
+For any questions or issues, please contact [Osagie Eboigbe](Mailto:johanneseboigbe55@yahoo.com).
